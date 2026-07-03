@@ -1,0 +1,144 @@
+{
+  "pluginAlias": "AquaDaemon",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Homebridge plugin for AquaDaemon. Add one entry per server under **Instances** below.",
+  "footerDisplay": "For help visit [Homebridge-AquaDaemon on GitHub](https://github.com/aquadaemon/homebridge-aquadaemon) or [AquaDaemon on GitHub](https://github.com/aquadaemon/AquaDaemon)",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "AquaDaemon",
+        "required": true,
+        "description": "Plugin name — leave as AquaDaemon"
+      },
+      "instances": {
+        "title": "Instances",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Instance Name",
+              "type": "string",
+              "required": true,
+              "placeholder": "e.g. Pool AqualinkD",
+              "description": "Unique name for this server connection. Used to namespace accessories — do NOT change after initial setup."
+            },
+            "serverType": {
+              "title": "Server Type",
+              "type": "string",
+              "required": true,
+              "oneOf": [
+                { "title": "AqualinkD", "enum": ["aqualinkd"] },
+                { "title": "AquachemD", "enum": ["aquachemd"] }
+              ],
+              "description": "Which daemon is running on this server."
+            },
+            "server": {
+              "title": "Server",
+              "type": "string",
+              "required": true,
+              "placeholder": "e.g. aquadaemon.local or 192.168.1.10",
+              "description": "Hostname or IP of the server. Prefix with user:pass@ for HTTP Basic Auth."
+            },
+            "port": {
+              "title": "Port",
+              "type": "string",
+              "required": true,
+              "placeholder": "80",
+              "description": "HTTP port the daemon is listening on."
+            },
+            "mqtt_host": {
+              "title": "MQTT Server",
+              "type": "string",
+              "placeholder": "127.0.0.1",
+              "description": "Hostname or IP of the MQTT broker."
+            },
+            "mqtt_port": {
+              "title": "MQTT Port",
+              "type": "string",
+              "placeholder": "1883",
+              "description": "Port for the MQTT broker."
+            },
+            "mqtt_topic": {
+              "title": "MQTT Topic",
+              "type": "string",
+              "placeholder": "aquadaemon",
+              "description": "Root MQTT topic this daemon publishes to. Must be unique per instance if sharing a broker."
+            },
+            "mqtt_username": {
+              "title": "MQTT Username",
+              "type": "string",
+              "description": "MQTT broker username (optional)."
+            },
+            "mqtt_password": {
+              "title": "MQTT Password",
+              "type": "string",
+              "description": "MQTT broker password (optional)."
+            },
+            "VSP_as_Fan": {
+              "title": "Use Fan for Variable Speed Pumps",
+              "type": "boolean",
+              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted (as a percentage)."
+            },
+            "user_device_deg_C": {
+              "title": "External Sensors Report °C",
+              "type": "boolean",
+              "description": "Enable if your external (non-temperature) sensors report values in °C."
+            },
+            "no_delete_on_sync": {
+              "title": "No Delete on Sync",
+              "type": "boolean",
+              "description": "When enabled, accessories that disappear from the device list are not removed during sync."
+            },
+            "excludedDevices": {
+              "title": "Excluded Devices",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Device IDs to hide from HomeKit. Visit http://server_ip/api/devices to find all IDs."
+            }
+          }
+        }
+      }
+    }
+  },
+  "form": [
+    "name",
+    {
+      "key": "instances",
+      "type": "array",
+      "buttonText": "Add Instance",
+      "items": [
+        "instances[].name",
+        "instances[].serverType",
+        "instances[].server",
+        "instances[].port",
+        "instances[].mqtt_host",
+        "instances[].mqtt_port",
+        "instances[].mqtt_topic",
+        "instances[].mqtt_username",
+        "instances[].mqtt_password",
+        "instances[].VSP_as_Fan",
+        "instances[].user_device_deg_C",
+        "instances[].no_delete_on_sync",
+        {
+          "key": "instances[].excludedDevices",
+          "type": "array",
+          "buttonText": "Add Device to Exclude",
+          "items": [
+            {
+              "key": "instances[].excludedDevices[]",
+              "title": "Device ID",
+              "placeholder": "e.g. SWG/Percent_f"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

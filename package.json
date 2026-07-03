@@ -1,0 +1,36 @@
+{
+  "name": "homebridge-aquadaemon",
+  "version": "1.0.0",
+  "description": "AquaDaemon Platform plugin for homebridge: https://github.com/aquadaemon/homebridge-aquadaemon",
+  "license": "ISC",
+  "keywords": [
+    "homebridge-plugin",
+    "pool",
+    "jandy",
+    "aqualink",
+    "aqualinkd",
+    "aquachemd",
+    "aquadaemon",
+    "homebridge",
+    "homekit"
+  ],
+  "author": {
+    "name": "Shaun Feakes"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aquadaemon/homebridge-aquadaemon.git"
+  },
+  "bugs": {
+    "url": "http://github.com/aquadaemon/homebridge-aquadaemon/issues"
+  },
+  "engines": {
+    "homebridge": "^1.6.0 || ^2.0.0-beta.0",
+    "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "inherits": "^2.0.1",
+    "mqtt": "^5.15.0",
+    "node-fetch": "^2.7.0"
+  }
+}
