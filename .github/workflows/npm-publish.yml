@@ -1,0 +1,27 @@
+name: Publish Package to npmjs
+on:
+  release:
+    types: [published]
+  workflow_dispatch: # Allow manual trigger from the Actions tab
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Allow the job to proceed despite the Node 20 deprecation
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          #registry-url: 'https://registry.npmjs.org/package/homebridge-aquadaemon'
+          registry-url: 'https://registry.npmjs.org' # Tells npm where to auth
+      - run: npm ci    
+      # FIX: Switch to install to avoid the Node 22 'Exit handler' bug
+      #- run: npm install 
+      - run: npm publish --provenance --access public
+
