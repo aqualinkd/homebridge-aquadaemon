@@ -1,7 +1,7 @@
 {
   "name": "homebridge-aquadaemon",
-  "version": "1.0.0",
-  "description": "AquaDaemon Platform plugin for homebridge: https://github.com/aquadaemon/homebridge-aquadaemon",
+  "version": "0.0.1",
+  "description": "AquaDaemon Platform plugin for homebridge: https://github.com/aqualinkd/homebridge-aquadaemon",
   "license": "ISC",
   "keywords": [
     "homebridge-plugin",
@@ -14,15 +14,13 @@
     "homebridge",
     "homekit"
   ],
-  "author": {
-    "name": "Shaun Feakes"
-  },
+  "author": "Shaun Feakes",
   "repository": {
     "type": "git",
-    "url": "git://github.com/aquadaemon/homebridge-aquadaemon.git"
+    "url": "git://github.com/aqualinkd/homebridge-aquadaemon.git"
   },
   "bugs": {
-    "url": "http://github.com/aquadaemon/homebridge-aquadaemon/issues"
+    "url": "http://github.com/aqualinkd/homebridge-aquadaemon/issues"
   },
   "engines": {
     "homebridge": "^1.6.0 || ^2.0.0-beta.0",
@@ -32,5 +30,14 @@
     "inherits": "^2.0.1",
     "mqtt": "^5.15.0",
     "node-fetch": "^2.7.0"
+  },
+  "homepage": "https://github.com/aqualinkd/homebridge-aquadaemon",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
