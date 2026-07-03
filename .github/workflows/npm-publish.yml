@@ -2,10 +2,18 @@ name: Publish Package to npmjs
 on:
   release:
     types: [published]
-  workflow_call: # This allows it to be called by another workflow
+  workflows: ["Publish Release"] # Must match the "name:" field in your other file exactly
+    types:
+      - completed
+
   workflow_dispatch: # Allow manual trigger from the Actions tab
 jobs:
   build:
+    # It's a manual run (workflow_dispatch) OR
+    # It's a workflow_run that finished successfully
+    if: | 
+        github.event_name == 'workflow_dispatch' || 
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     env:
       # Allow the job to proceed despite the Node 20 deprecation

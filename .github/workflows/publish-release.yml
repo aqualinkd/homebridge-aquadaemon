@@ -1,7 +1,7 @@
 #
 # Don't forget to update compile-assets.yml if you rename this
 #
-name: "   Publish Release"
+name: "Publish Release"
 
 on:
   workflow_dispatch:
