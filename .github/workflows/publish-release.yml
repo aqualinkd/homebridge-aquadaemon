@@ -62,8 +62,3 @@ jobs:
           path: release_tag.txt
           retention-days: 1
 
-      - name: Trigger NPM Publish
-        uses: benc-uk/workflow-dispatch@v1 # A popular community action for this
-        with:
-          workflow: npm-publish.yml
-          token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }} # Note: You usually need a PAT for this
