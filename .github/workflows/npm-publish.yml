@@ -2,10 +2,11 @@ name: Publish Package to npmjs
 on:
   release:
     types: [published]
-  workflows: ["Publish Release"] # Must match the "name:" field in your other file exactly
+  # This triggers when your release workflow finishes
+  workflow_run:
+    workflows: ["Publish Release"] # Must match the "name:" field in your other file exactly
     types:
       - completed
-
   workflow_dispatch: # Allow manual trigger from the Actions tab
 jobs:
   build:
