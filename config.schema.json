@@ -35,14 +35,14 @@
                 { "title": "AqualinkD", "enum": ["aqualinkd"] },
                 { "title": "AquachemD", "enum": ["aquachemd"] }
               ],
-              "description": "Which daemon is running on this server."
+              "description": "Which daemon/server is this instance connecting too."
             },
             "server": {
               "title": "Server",
               "type": "string",
               "required": true,
-              "placeholder": "e.g. aquadaemon.local or 192.168.1.10",
-              "description": "Hostname or IP of the server. Prefix with user:pass@ for HTTP Basic Auth."
+              "placeholder": "e.g. aqualinkd.local or 192.168.1.10",
+              "description": "Hostname or IP of the server."
             },
             "port": {
               "title": "Port",
@@ -66,7 +66,7 @@
             "mqtt_topic": {
               "title": "MQTT Topic",
               "type": "string",
-              "placeholder": "aquadaemon",
+              "placeholder": "aqualinkd or aquachemd",
               "description": "Root MQTT topic this daemon publishes to. Must be unique per instance if sharing a broker."
             },
             "mqtt_username": {
@@ -80,9 +80,9 @@
               "description": "MQTT broker password (optional)."
             },
             "VSP_as_Fan": {
-              "title": "Use Fan for Variable Speed Pumps",
+              "title": "[AqualinkD] Use Fan for Variable Speed Pumps",
               "type": "boolean",
-              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted (as a percentage)."
+              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted as a percentage."
             },
             "user_device_deg_C": {
               "title": "External Sensors Report °C",
@@ -92,7 +92,7 @@
             "no_delete_on_sync": {
               "title": "No Delete on Sync",
               "type": "boolean",
-              "description": "When enabled, accessories that disappear from the device list are not removed during sync."
+              "description": "When enabled, accessories that disappear from server are not removed during sync. (Manual removal is required)"
             },
             "excludedDevices": {
               "title": "Excluded Devices",
