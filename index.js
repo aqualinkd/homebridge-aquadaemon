@@ -190,12 +190,16 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
   this.apiBaseURL = "http://" + this.server + ":" + this.port;
 
   // Per-instance feature flags.
-  this.isVSPasFanEnabled = false;
-  this.isDimmerEnabled = false;
+  //this.isDimmerEnabled = false;
   this.isUserDeviceDegC = (config.user_device_deg_C === true);
 
   if (typeof config.no_delete_on_sync === 'undefined') {
     this.config.no_delete_on_sync = false;
+  }
+
+  //if ((version >= 20500) && (this.config.VSP_as_Fan === true)) { // This is for AqualinkD version, not AquachemD
+  if (this.config.VSP_as_Fan === true) {
+    Utils.addCustomadDevice2hkSDeviceMap(Constants.AdDeviceType.VARIABLE_SPEED_PUMP, Constants.hkDeviceType.FAN);
   }
 
   // Claim only the cached accessories that belong to this instance.
@@ -212,11 +216,9 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
   this.accessories = this.accessories.map(function (platformAccessory) {  
     var device = platformAccessory.context.device;
     var uuid = platformAccessory.context.uuid;
-    //if (this.firstrun === true) {
-      this.forceLog("Loading cached accessory: " + Utils.adDevice2hkString(device.mappedType) + " - " + (device.label || device.name));
-    //} else {
-    //  this.log("Loading cached accessory: " + device.name);
-    //}
+    this.forceLog("Loading cached accessory: " + (device.label || device.name)+ " - "+ Utils.adDevice2hkString(device.mappedType));
+    // Below is nicer formatted, but only looks good in full log.
+    //this.forceLog(`Loading cached accessory: ${String(device.label || device.name).padEnd(25)} - ${Utils.adDevice2hkString(device.mappedType)}`);
     return new AquaDaemonAccessory(this, platformAccessory, device.id, device, uuid);
   }.bind(this));
 
@@ -252,9 +254,15 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
       var version = Utils.VersionString2Int(aqVersion);
       this.log("Server version: " + aqVersion + " (" + version + ")");
 
+      this.log("----- Loading devices -----");
+
       for (var i = 0; i < devices.length; i++) {
         var device = devices[i];
 
+        this.log("Received device: " + device.name + ", type=" +device.type);
+
+        /*
+        // Moved all this to other parts of code
         // AqualinkD-only: promote VSP switches to fan type when configured.
         if (this.config.serverType === 'aqualinkd' || !this.config.serverType) {
           if ((version >= 20500) && (this.config.VSP_as_Fan === true)) {
@@ -266,7 +274,6 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
               this.isVSPasFanEnabled = true;
             }
           }
-
           // Promote dimmer switches.
           if (device.type === Constants.adDeviceSwitch &&
               device.hasOwnProperty("type_ext") &&
@@ -276,7 +283,7 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
             this.isDimmerEnabled = true;
           }
         }
-
+        */
         var existingAccessory = this.accessories.find(function (a) {
           return a.id === device.id;
         });
@@ -312,13 +319,13 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
             }
           } else {
             if (this.firstrun === true) {
-              this.forceLog("Loading " + incomingMappedType.toLowerCase() + " — " +
+              this.forceLog("Loading (" + incomingMappedType.toLowerCase() + ") — " +
                 (device.label || device.name) + " as " + Utils.adDevice2hkString(incomingMappedType));
             } else {
-              this.log("Loading " + incomingMappedType.toLowerCase() + " — " +
+              this.log("Loading (" + incomingMappedType.toLowerCase() + ") — " +
                 (device.label || device.name) + " as " + Utils.adDevice2hkString(incomingMappedType));  
             }
-              continue; // Already registered and unchanged.
+            continue; // Already registered and unchanged.
           }
         }
 
@@ -335,7 +342,9 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
         };
 
         this.accessories.push(accessory);
-        this.forceLog("Registering: " + accessory.name + " | " + device.type + " | " + uuid);
+        //this.forceLog("Registering: " + accessory.name + " | " + device.type + " | " + uuid);
+        this.forceLog("Registering (" + incomingMappedType.toLowerCase() + ") — " +
+                (accessory.label || accessory.name) + " as " + Utils.adDevice2hkString(incomingMappedType)+ " | " + uuid);
 
         try {
           this.api.registerPlatformAccessories(pluginName, platformName, [accessory.platformAccessory]);
@@ -363,6 +372,8 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
           }
         }
       }
+
+      this.log("----- Finished Loading devices -----");
 
       // Prune the local accessories array.
       for (var k = 0; k < removedAccessories.length; k++) {
