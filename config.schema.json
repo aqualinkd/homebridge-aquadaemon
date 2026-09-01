@@ -77,17 +77,23 @@
             "mqtt_password": {
               "title": "MQTT Password",
               "type": "string",
+              "x-schema-form": { "type": "password" },
               "description": "MQTT broker password (optional)."
             },
             "VSP_as_Fan": {
               "title": "[AqualinkD] Use Fan for Variable Speed Pumps",
               "type": "boolean",
-              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted as a percentage."
+              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted as a percentage. Default is on/off switch."
             },
-            "user_device_deg_C": {
-              "title": "External Sensors Report °C",
+            "use_legacy_temp_sensors": {
+              "title": "[AqualinkD] Use Legacy Temperature Sensors",
               "type": "boolean",
-              "description": "Enable if your external (non-temperature) sensors report values in °C."
+              "description": "AqualinkD only. Use Temperature sensors for devices reporting(ppm,orp,ph) vs Lux sensors"
+            },
+            "doser_as_switch": {
+              "title": "[AquachemD] Use Switch for Doser",
+              "type": "boolean",
+              "description": "AquachemD only. Exposes Doser as on/off switch vs valve. (Valve has the ability to set a timer)"
             },
             "no_delete_on_sync": {
               "title": "No Delete on Sync",
@@ -124,7 +130,8 @@
         "instances[].mqtt_username",
         "instances[].mqtt_password",
         "instances[].VSP_as_Fan",
-        "instances[].user_device_deg_C",
+        "instances[].use_legacy_temp_sensors",
+        "instances[].doser_as_switch",
         "instances[].no_delete_on_sync",
         {
           "key": "instances[].excludedDevices",

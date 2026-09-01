@@ -126,7 +126,8 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
 
   this.instanceName = config.name || "AquaDaemon";
   this.connectedServerVersion = "0.0.0";
-  this.connectedServerType = Constants.serverType.UNKNOWN;
+  this.connectedServerType = Constants.serverType.UNKNOWN;  // This is set later from the HTTP connection to the server
+  this.serverType = Utils.normalizeServerType(config.serverType); // what the *user configured*
 
   // Prefix every log line with the instance name so mixed output is readable.
   var prefix = "[" + this.instanceName + "] ";
@@ -188,19 +189,32 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
   }
   this.port = config.port || "80";
   this.apiBaseURL = "http://" + this.server + ":" + this.port;
-
-  // Per-instance feature flags.
-  //this.isDimmerEnabled = false;
-  this.isUserDeviceDegC = (config.user_device_deg_C === true);
-
+  
   if (typeof config.no_delete_on_sync === 'undefined') {
     this.config.no_delete_on_sync = false;
   }
 
-  //if ((version >= 20500) && (this.config.VSP_as_Fan === true)) { // This is for AqualinkD version, not AquachemD
-  if (this.config.VSP_as_Fan === true) {
-    Utils.addCustomadDevice2hkSDeviceMap(Constants.AdDeviceType.VARIABLE_SPEED_PUMP, Constants.hkDeviceType.FAN);
+  this.useLegacyTempSensors = false;
+
+  if (this.serverType === Constants.serverType.AQUALINKD) {
+    this.useLegacyTempSensors = (config.use_legacy_temp_sensors === true);
+    
+    if (this.config.VSP_as_Fan === true) {
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.VARIABLE_SPEED_PUMP, Constants.hkDeviceType.FAN);
+    }
+
+    if (this.config.use_legacy_temp_sensors === true) {
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.PH_SENSOR, Constants.hkDeviceType.TEMPERATURE_SENSOR);
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.ORP_SENSOR, Constants.hkDeviceType.TEMPERATURE_SENSOR);
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.PPM_SENSOR, Constants.hkDeviceType.TEMPERATURE_SENSOR);
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.VALUE_SENSOR, Constants.hkDeviceType.TEMPERATURE_SENSOR);
+    }
+  } else if (this.serverType === Constants.serverType.AQUACHEMD) {
+    if (this.config.doser_as_switch === true) {
+      Utils.addCustomadDevice2hkSDeviceMap(this.instanceName, Constants.AdDeviceType.DOSER, Constants.hkDeviceType.SWITCH);
+    }
   }
+  
 
   // Claim only the cached accessories that belong to this instance.
   // Ownership is established by context.instanceName, which we stamp on
@@ -216,7 +230,7 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
   this.accessories = this.accessories.map(function (platformAccessory) {  
     var device = platformAccessory.context.device;
     var uuid = platformAccessory.context.uuid;
-    this.forceLog("Loading cached accessory: " + (device.label || device.name)+ " - "+ Utils.adDevice2hkString(device.mappedType));
+    this.forceLog("Loading cached accessory: " + (device.label || device.name)+ " - "+ Utils.adDevice2hkString(this.instanceName, device.mappedType));
     // Below is nicer formatted, but only looks good in full log.
     //this.forceLog(`Loading cached accessory: ${String(device.label || device.name).padEnd(25)} - ${Utils.adDevice2hkString(device.mappedType)}`);
     return new AquaDaemonAccessory(this, platformAccessory, device.id, device, uuid);
@@ -261,35 +275,12 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
 
         this.log("Received device: " + device.name + ", type=" +device.type);
 
-        /*
-        // Moved all this to other parts of code
-        // AqualinkD-only: promote VSP switches to fan type when configured.
-        if (this.config.serverType === 'aqualinkd' || !this.config.serverType) {
-          if ((version >= 20500) && (this.config.VSP_as_Fan === true)) {
-            if (device.type === Constants.adDeviceSwitch &&
-                device.hasOwnProperty("type_ext") &&
-                device.type_ext === Constants.adDeviceSwitchVSP) {
-              device.type = Constants.adDeviceVSPfan;
-              this.log("Promoting " + (device.label || device.name) + " to Fan (VSP)");
-              this.isVSPasFanEnabled = true;
-            }
-          }
-          // Promote dimmer switches.
-          if (device.type === Constants.adDeviceSwitch &&
-              device.hasOwnProperty("type_ext") &&
-              device.type_ext === Constants.adDeviceDimmer) {
-            device.type = Constants.adDeviceDimmer;
-            this.log("Promoting " + (device.label || device.name) + " to Dimmer");
-            this.isDimmerEnabled = true;
-          }
-        }
-        */
         var existingAccessory = this.accessories.find(function (a) {
           return a.id === device.id;
         });
 
         var incomingMappedType = Utils.normalizeDevice(device.id, device);
-        var incomingHkType = Utils.adDevice2hkSDevice(incomingMappedType);
+        var incomingHkType = Utils.adDevice2hkSDevice(this.instanceName, incomingMappedType);
 
         // Skip excluded devices, removing from cache if previously registered.
         if (excludedDevices.indexOf(device.id) > -1) {
@@ -320,10 +311,10 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
           } else {
             if (this.firstrun === true) {
               this.forceLog("Loading (" + incomingMappedType.toLowerCase() + ") — " +
-                (device.label || device.name) + " as " + Utils.adDevice2hkString(incomingMappedType));
+                (device.label || device.name) + " as " + Utils.adDevice2hkString(this.instanceName, incomingMappedType));
             } else {
               this.log("Loading (" + incomingMappedType.toLowerCase() + ") — " +
-                (device.label || device.name) + " as " + Utils.adDevice2hkString(incomingMappedType));  
+                (device.label || device.name) + " as " + Utils.adDevice2hkString(this.instanceName, incomingMappedType));  
             }
             continue; // Already registered and unchanged.
           }
@@ -344,7 +335,7 @@ AquaDaemonInstance.prototype.synchronizeAccessories = function () {
         this.accessories.push(accessory);
         //this.forceLog("Registering: " + accessory.name + " | " + device.type + " | " + uuid);
         this.forceLog("Registering (" + incomingMappedType.toLowerCase() + ") — " +
-                (accessory.label || accessory.name) + " as " + Utils.adDevice2hkString(incomingMappedType)+ " | " + uuid);
+                (accessory.label || accessory.name) + " as " + Utils.adDevice2hkString(this.instanceName, incomingMappedType)+ " | " + uuid);
 
         try {
           this.api.registerPlatformAccessories(pluginName, platformName, [accessory.platformAccessory]);
