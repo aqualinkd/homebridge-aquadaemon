@@ -96,6 +96,16 @@
               "title": "Show Doser as On/Off Switch",
               "description": "Exposes the doser as a simple HomeKit Switch instead of a Valve. Switches are simpler to use, but Valves let you set and see a countdown timer for how long the doser runs."
             },
+            "doser_as_switch": {
+              "type": "boolean",
+              "title": "Show Doser as On/Off Switch",
+              "description": "Exposes the doser as a simple HomeKit Switch instead of a Valve. Switches are simpler to use, but Valves let you set and see a countdown timer for how long the doser runs."
+            },
+            "use_tank_volume_uom": {
+              "title": "Show Tank Volume in Original Units",
+              "type": "boolean",
+              "description": "Displays remaining chemical tank volume in its original unit (gallons or litres, as reported by AquachemD) instead of a percentage. Still uses a HomeKit Light Sensor — only the numeric value shown changes."
+            },
             "no_delete_on_sync": {
               "title": "No Delete on Sync",
               "type": "boolean",
@@ -149,6 +159,12 @@
             },
             {
               "key": "instances[].doser_as_switch",
+              "condition": {
+                "functionBody": "return model.instances && model.instances[arrayIndices[0]] && model.instances[arrayIndices[0]].serverType === 'aquachemd';"
+              }
+            },
+            {
+              "key": "instances[].use_tank_volume_uom",
               "condition": {
                 "functionBody": "return model.instances && model.instances[arrayIndices[0]] && model.instances[arrayIndices[0]].serverType === 'aquachemd';"
               }

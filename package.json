@@ -1,6 +1,7 @@
 {
   "name": "homebridge-aquadaemon",
-  "version": "1.0.2",
+  "displayName": "AquaDaemon",
+  "version": "1.0.3",
   "description": "AquaDaemon Platform plugin for homebridge: https://github.com/aqualinkd/homebridge-aquadaemon",
   "license": "ISC",
   "keywords": [

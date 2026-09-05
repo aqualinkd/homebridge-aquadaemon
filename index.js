@@ -194,6 +194,10 @@ function AquaDaemonInstance(log, config, api, masterPlatform) {
     this.config.no_delete_on_sync = false;
   }
 
+  if (typeof config.use_tank_volume_uom === 'undefined') {
+    this.config.use_tank_volume_uom = false;
+  }
+
   this.useLegacyTempSensors = false;
 
   if (this.serverType === Constants.serverType.AQUALINKD) {

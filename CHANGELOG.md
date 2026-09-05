@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.0.3 (2026-09-06)
+### Featured Changes
+* Added config option `Show Tank Volume in Original Units`  to display remaining chemical tank volume in its original unit (gallons or litres, as reported by AquachemD) instead of a percentage.
+* Changed the display name in Homebridge UI
+
+
 ## v1.0.2 (2026-09-05)
 ### Featured Changes
 * Fixed some valve duration bug
