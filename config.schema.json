@@ -17,6 +17,7 @@
       "instances": {
         "title": "Instances",
         "type": "array",
+        
         "items": {
           "type": "object",
           "properties": {
@@ -35,7 +36,7 @@
                 { "title": "AqualinkD", "enum": ["aqualinkd"] },
                 { "title": "AquachemD", "enum": ["aquachemd"] }
               ],
-              "description": "Which daemon/server is this instance connecting too."
+              "description": "Which daemon/server is this instance connecting to."
             },
             "server": {
               "title": "Server",
@@ -46,7 +47,7 @@
             },
             "port": {
               "title": "Port",
-              "type": "string",
+              "type": "integer",
               "required": true,
               "placeholder": "80",
               "description": "HTTP port the daemon is listening on."
@@ -59,7 +60,7 @@
             },
             "mqtt_port": {
               "title": "MQTT Port",
-              "type": "string",
+              "type": "integer",
               "placeholder": "1883",
               "description": "Port for the MQTT broker."
             },
@@ -81,19 +82,19 @@
               "description": "MQTT broker password (optional)."
             },
             "VSP_as_Fan": {
-              "title": "[AqualinkD] Use Fan for Variable Speed Pumps",
               "type": "boolean",
-              "description": "AqualinkD only. Exposes VSP pumps as Fans so RPM can be adjusted as a percentage. Default is on/off switch."
+              "title": "Show Variable Speed Pumps as Fans",
+              "description": "Exposes variable-speed pump accessories as HomeKit Fans so you can set an exact speed percentage, instead of a simple on/off switch."
             },
             "use_legacy_temp_sensors": {
-              "title": "[AqualinkD] Use Legacy Temperature Sensors",
               "type": "boolean",
-              "description": "AqualinkD only. Use Temperature sensors for devices reporting(ppm,orp,ph) vs Lux sensors"
+              "title": "Show Chemistry Readings as Temperature Sensors",
+              "description": "Displays ORP, pH, and salt PPM readings using HomeKit's Temperature Sensor type (the original behavior) instead of Light Sensor. Only enable this if you already have automations or dashboards built around the old temperature-based readings — new setups should leave this off."
             },
             "doser_as_switch": {
-              "title": "[AquachemD] Use Switch for Doser",
               "type": "boolean",
-              "description": "AquachemD only. Exposes Doser as on/off switch vs valve. (Valve has the ability to set a timer)"
+              "title": "Show Doser as On/Off Switch",
+              "description": "Exposes the doser as a simple HomeKit Switch instead of a Valve. Switches are simpler to use, but Valves let you set and see a countdown timer for how long the doser runs."
             },
             "no_delete_on_sync": {
               "title": "No Delete on Sync",
@@ -120,28 +121,50 @@
       "type": "array",
       "buttonText": "Add Instance",
       "items": [
-        "instances[].name",
-        "instances[].serverType",
-        "instances[].server",
-        "instances[].port",
-        "instances[].mqtt_host",
-        "instances[].mqtt_port",
-        "instances[].mqtt_topic",
-        "instances[].mqtt_username",
-        "instances[].mqtt_password",
-        "instances[].VSP_as_Fan",
-        "instances[].use_legacy_temp_sensors",
-        "instances[].doser_as_switch",
-        "instances[].no_delete_on_sync",
         {
-          "key": "instances[].excludedDevices",
-          "type": "array",
-          "buttonText": "Add Device to Exclude",
+          "type": "fieldset",
+          "title": "{{ value.name || 'New Instance' }}",
+          "expandable": true,
           "items": [
+            "instances[].name",
+            "instances[].serverType",
+            "instances[].server",
+            "instances[].port",
+            "instances[].mqtt_host",
+            "instances[].mqtt_port",
+            "instances[].mqtt_topic",
+            "instances[].mqtt_username",
+            "instances[].mqtt_password",
             {
-              "key": "instances[].excludedDevices[]",
-              "title": "Device ID",
-              "placeholder": "e.g. SWG/Percent_f"
+              "key": "instances[].VSP_as_Fan",
+              "condition": {
+                "functionBody": "return model.instances && model.instances[arrayIndices[0]] && model.instances[arrayIndices[0]].serverType === 'aqualinkd';"
+              }
+            },
+            {
+              "key": "instances[].use_legacy_temp_sensors",
+              "condition": {
+                "functionBody": "return model.instances && model.instances[arrayIndices[0]] && model.instances[arrayIndices[0]].serverType === 'aqualinkd';"
+              }
+            },
+            {
+              "key": "instances[].doser_as_switch",
+              "condition": {
+                "functionBody": "return model.instances && model.instances[arrayIndices[0]] && model.instances[arrayIndices[0]].serverType === 'aquachemd';"
+              }
+            },
+            "instances[].no_delete_on_sync",
+            {
+              "key": "instances[].excludedDevices",
+              "type": "array",
+              "buttonText": "Add Device to Exclude",
+              "items": [
+                {
+                  "key": "instances[].excludedDevices[]",
+                  "title": "Device ID",
+                  "placeholder": "e.g. SWG/Percent_f"
+                }
+              ]
             }
           ]
         }
